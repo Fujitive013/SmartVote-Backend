@@ -6,18 +6,27 @@ const router = express.Router();
 router.post("/register", async (req, res) => {
     console.log("Request Body:", req.body); // Debugging line
     const { first_name, last_name, email, password } = req.body;
-    if (!password) {
-        return res.status(400).json({ error: "Password is required" });
+
+    if (!email || !password) {
+        return res
+            .status(400)
+            .json({ error: "Email and Password are required" });
     }
 
     try {
+        // Check if the user already exists
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ error: "Email already in use" });
+        }
         const hashedPassword = await bcrypt.hash(password.trim(), 10);
+
         const newUser = new User({
             first_name,
             last_name,
             email,
             password: hashedPassword,
-            role: "voter",
+            role: "voter", // Default role is "voter"
             voted_elections: [],
             created_at: new Date(),
         });

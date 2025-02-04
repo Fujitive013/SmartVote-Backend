@@ -7,11 +7,8 @@ const ElectionSchema = new mongoose.Schema(
 
         candidates: [
             {
-                candidate: {
-                    type: mongoose.Schema.Types.ObjectId,
-                    ref: "Candidate", // ✅ Reference the Candidate model correctly
-                    required: true,
-                },
+                name: { type: String, required: true },
+                party: { type: String, required: true },
             },
         ],
 
@@ -24,7 +21,20 @@ const ElectionSchema = new mongoose.Schema(
             default: "upcoming",
         },
     },
-    { timestamps: true }
+    { timestamps: true },
 );
+
+// Middleware: Automatically update the status before saving
+ElectionSchema.pre("save", function (next) {
+    const now = new Date();
+    if (now < this.start_date) {
+        this.status = "upcoming";
+    } else if (now >= this.start_date && now <= this.end_date) {
+        this.status = "ongoing";
+    } else {
+        this.status = "completed";
+    }
+    next();
+});
 
 module.exports = mongoose.model("Election", ElectionSchema);
