@@ -69,7 +69,7 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
     try {
         const election = await Election.findById(req.params.id).populate(
-            "candidates._id",
+            "candidates._id"
         );
 
         if (!election) {

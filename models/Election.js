@@ -21,7 +21,7 @@ const ElectionSchema = new mongoose.Schema(
             default: "upcoming",
         },
     },
-    { timestamps: true },
+    { timestamps: true }
 );
 
 // Middleware: Automatically update the status before saving

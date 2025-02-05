@@ -13,7 +13,7 @@ router.post("/", async (req, res) => {
         voter_first_name,
         voter_last_name,
         election_id,
-        election_name,   
+        election_name,
         candidate_id,
         candidate_name,
     } = req.body;
@@ -35,7 +35,7 @@ router.post("/", async (req, res) => {
             voter_first_name,
             voter_last_name,
             election_id,
-            election_name,    
+            election_name,
             candidate_id,
             candidate_name,
         });
@@ -68,6 +68,35 @@ router.get("/check", async (req, res) => {
     } catch (err) {
         console.error("Error checking vote:", err);
         res.status(500).json({ error: "Error checking vote" });
+    }
+});
+
+// Check voting status and get vote details
+router.get("/status", async (req, res) => {
+    const { voter_id, election_id } = req.query;
+
+    try {
+        const vote = await Vote.findOne({ voter_id, election_id });
+        if (!vote) {
+            return res.status(200).json({
+                hasVoted: false,
+                message: "User has not voted in this election.",
+            });
+        }
+
+        res.status(200).json({
+            hasVoted: true,
+            voteDetails: {
+                candidate_id: vote.candidate_id,
+                candidate_name: vote.candidate_name,
+                election_id: vote.election_id,
+                election_name: vote.election_name,
+                dateVoted: vote.createdAt,
+            },
+        });
+    } catch (err) {
+        console.error("Error retrieving voting status:", err);
+        res.status(500).json({ error: "Error retrieving voting status" });
     }
 });
 
