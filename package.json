@@ -4,8 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
-    "devStart": "nodemon server.js",
-    "vercel-command": "echo hello"
+    "devStart": "nodemon server.js"
   },
   "keywords": [],
   "author": "",
