@@ -1,19 +1,14 @@
-// server.js
-
 const express = require("express");
+const dotenv = require("dotenv");
+const connectDB = require("./libs/db");
+
+dotenv.config();
 const app = express();
-const mongoose = require("mongoose");
-require("dotenv").config();
+
+connectDB();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-const MONGO_URI = process.env.MONGO_URI;
-
-mongoose
-    .connect(MONGO_URI)
-    .then(() => console.log("MongoDB connected"))
-    .catch((err) => console.log("MongoDB connection error:", err));
 
 const authRouter = require("./routes/auth");
 app.use("/auth", authRouter);
@@ -22,12 +17,12 @@ app.use("/elections", electionsRouter);
 const votesRouter = require("./routes/votes");
 app.use("/votes", votesRouter);
 
-// Testing route
 app.get("/test", (req, res) => {
     res.status(200).json({ message: "Server is running correctly" });
     console.log("message received");
 });
 
-app.listen(3000, () => {
-    console.log("Server is running on port 3000");
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
