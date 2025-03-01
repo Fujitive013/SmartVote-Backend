@@ -1,5 +1,5 @@
 const express = require("express");
-const votesController = require("../controllers/votesController");
+const votesController = require("../controllers/votesControllers");
 
 const router = express.Router();
 
