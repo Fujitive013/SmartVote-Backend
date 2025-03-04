@@ -24,4 +24,4 @@ const ResultSchema = new mongoose.Schema({
     finalized: { type: Boolean, default: false },
 });
 
-module.exports = mongoose.model("Result", ResultSchema);
+module.exports = ResultSchema;
