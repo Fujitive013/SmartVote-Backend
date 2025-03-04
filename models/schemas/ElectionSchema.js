@@ -37,4 +37,4 @@ ElectionSchema.pre("save", function (next) {
     next();
 });
 
-module.exports = mongoose.model("Election", ElectionSchema);
+module.exports = ElectionSchema;

@@ -38,4 +38,4 @@ const VoteSchema = new mongoose.Schema({
     timestamp: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model("Vote", VoteSchema);
+module.exports = VoteSchema;

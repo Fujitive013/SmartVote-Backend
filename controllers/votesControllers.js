@@ -1,5 +1,5 @@
-const Vote = require("../models/Vote");
-const User = require("../models/User");
+const Vote = require("../models/voteModel");
+const User = require("../models/userModel");
 
 // Cast a vote
 exports.castVote = async (req, res) => {

@@ -1,4 +1,4 @@
-const Election = require("../models/Election");
+const Election = require("../models/electionModel");
 
 // Middleware: Ensure user is admin (For now, assume role is sent in request)
 const isAdmin = (req, res, next) => {
