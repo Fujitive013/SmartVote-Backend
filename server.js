@@ -1,38 +1,45 @@
-// server.js
-
 const express = require("express");
-const app = express();
+const dotenv = require("dotenv");
 const mongoose = require("mongoose");
-const package = require('./package.json');
-require("dotenv").config();
+const connectDB = require("./libs/db");
+const packageInfo = require("./package.json");
+
+dotenv.config();
+const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const MONGO_URI = process.env.MONGO_URI;
-
-mongoose
-  .connect(MONGO_URI)
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.log("MongoDB connection error:", err));
+// Connect to MongoDB
+connectDB();
 
 const authRouter = require("./routes/auth");
-app.use("/auth", authRouter);
 const electionsRouter = require("./routes/elections");
-app.use("/elections", electionsRouter);
 const votesRouter = require("./routes/votes");
+
+
+app.use("/auth", authRouter);
+app.use("/elections", electionsRouter);
 app.use("/votes", votesRouter);
 
-// To know what system is been starting
+
 app.get("/", (req, res) => {
   res.status(200).json({
     status: "online",
-    id: package.version,
-    message: package.name,
+    id: packageInfo.version,
+    message: packageInfo.name,
   });
-  console.log(`System ${package.name} is running`);
+  console.log(`System ${packageInfo.name} is running`);
 });
 
-app.listen(3000, () => {
-  console.log("Server is running on port 3000");
+
+app.get("/test", (req, res) => {
+  res.status(200).json({ message: "Server is running correctly" });
+  console.log("Test message received");
+});
+
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
