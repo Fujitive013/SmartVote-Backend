@@ -21,10 +21,11 @@ const ElectionSchema = new mongoose.Schema(
             default: "upcoming",
         },
     },
-    { timestamps: true }
+    {
+        timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
+    }
 );
 
-// Middleware: Automatically update the status before saving
 ElectionSchema.pre("save", function (next) {
     const now = new Date();
     if (now < this.start_date) {
