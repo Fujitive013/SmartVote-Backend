@@ -33,8 +33,10 @@ exports.castVote = async (req, res) => {
             candidate_name,
         });
 
-        await newVote.save();
         user.voted_elections.push(election_id);
+        
+        await newVote.save();
+        
         await user.save();
 
         res.status(201).json({ message: "Vote submitted successfully" });

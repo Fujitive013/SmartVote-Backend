@@ -1,6 +1,5 @@
 const express = require("express");
 const dotenv = require("dotenv");
-const mongoose = require("mongoose");
 const connectDB = require("./libs/db");
 const packageInfo = require("./package.json");
 
@@ -10,7 +9,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Connect to MongoDB
+// await connectDB();
 connectDB();
 
 const authRouter = require("./routes/auth");
