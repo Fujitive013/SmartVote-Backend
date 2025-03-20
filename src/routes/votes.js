@@ -1,11 +1,17 @@
 const express = require("express");
-const votesController = require("../controllers/votesControllers");
+const {
+    castVote,
+    checkVote,
+    getVoteStatus,
+    countVotes,
+} = require("../controllers/votesControllers");
+const { authenticateUser } = require("../utils/authUtils");
 
 const router = express.Router();
 
-router.post("/", votesController.castVote);
-router.get("/check", votesController.checkVote);
-router.get("/status", votesController.getVoteStatus);
-router.get("/count/:candidate_id", votesController.countVotes);
+router.post("/", authenticateUser, castVote);
+router.get("/check", authenticateUser, checkVote);
+router.get("/status", authenticateUser, getVoteStatus);
+router.get("/count/:candidate_id", authenticateUser, countVotes);
 
 module.exports = router;
