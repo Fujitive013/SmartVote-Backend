@@ -8,12 +8,16 @@ const votesRouter = require("./routes/votes");
 
 const app = express();
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
 const StartServert = async () => {
     try {
         await connectDB();
         console.log("Database connected successfully");
+        const PORT = process.env.PORT || 3000;
+        app.listen(PORT, () => {
+            console.log(`Server is running on port ${PORT}`);
+        });
     } catch (error) {
         console.log("Error connecting to the database", error);
     }
@@ -37,9 +41,4 @@ app.get("/", (req, res) => {
 app.get("/test", (req, res) => {
     res.status(200).json({ message: "Server is running correctly" });
     console.log("Test message received");
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
 });
