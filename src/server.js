@@ -1,11 +1,10 @@
 const express = require("express");
-const dotenv = require("dotenv");
+require("dotenv").config();
 const connectDB = require("./libs/db");
 const packageInfo = require("../package.json");
 const authRouter = require("./routes/auth");
 const electionsRouter = require("./routes/elections");
 const votesRouter = require("./routes/votes");
-dotenv.config();
 
 const app = express();
 app.use(express.json());
