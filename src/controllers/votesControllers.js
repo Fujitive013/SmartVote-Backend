@@ -2,7 +2,7 @@ const Vote = require("../models/voteModel");
 const User = require("../models/userModel");
 
 // Cast a vote
-exports.castVote = async (req, res) => {
+const castVote = async (req, res) => {
     const {
         voter_id,
         voter_first_name,
@@ -34,9 +34,9 @@ exports.castVote = async (req, res) => {
         });
 
         user.voted_elections.push(election_id);
-        
+
         await newVote.save();
-        
+
         await user.save();
 
         res.status(201).json({ message: "Vote submitted successfully" });
@@ -47,7 +47,7 @@ exports.castVote = async (req, res) => {
 };
 
 // Check if a user has voted in a specific election
-exports.checkVote = async (req, res) => {
+const checkVote = async (req, res) => {
     const { voter_id, election_id } = req.query;
 
     try {
@@ -63,18 +63,16 @@ exports.checkVote = async (req, res) => {
 };
 
 // Check voting status and get vote details
-exports.getVoteStatus = async (req, res) => {
+const getVoteStatus = async (req, res) => {
     const { voter_id, election_id } = req.query;
 
     try {
         const vote = await Vote.findOne({ voter_id, election_id });
         if (!vote) {
-            return res
-                .status(200)
-                .json({
-                    hasVoted: false,
-                    message: "User has not voted in this election.",
-                });
+            return res.status(200).json({
+                hasVoted: false,
+                message: "User has not voted in this election.",
+            });
         }
 
         res.status(200).json({
@@ -94,7 +92,7 @@ exports.getVoteStatus = async (req, res) => {
 };
 
 // Count total votes for a specific candidate
-exports.countVotes = async (req, res) => {
+const countVotes = async (req, res) => {
     const { candidate_id } = req.params;
 
     try {
@@ -104,4 +102,11 @@ exports.countVotes = async (req, res) => {
         console.error("Error counting votes:", err);
         res.status(500).json({ error: "Error counting votes" });
     }
+};
+
+module.exports = {
+    castVote,
+    checkVote,
+    getVoteStatus,
+    countVotes,
 };
