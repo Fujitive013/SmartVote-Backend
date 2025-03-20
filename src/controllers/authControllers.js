@@ -1,15 +1,10 @@
 const User = require("../models/userModel");
 const { hashPassword, comparePassword } = require("../utils/authUtils");
+const jwt = require("jsonwebtoken");
 
 const registerUser = async (req, res) => {
     console.log("Request Body:", req.body);
     const { first_name, last_name, email, password } = req.body;
-
-    if (!email || !password) {
-        return res
-            .status(400)
-            .json({ error: "Email and Password are required" });
-    }
 
     try {
         // Check if the user already exists
@@ -57,8 +52,21 @@ const loginUser = async (req, res) => {
             return res.status(400).json({ error: "Invalid email or password" });
         }
 
+        const token = jwt.sign(
+            {
+                id: user._id,
+                email: user.email,
+                role: user.role,
+                first_name: user.first_name,
+                last_name: user.last_name,
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: "1h" }
+        );
+
         res.status(200).json({
             message: "Login successful",
+            token: `Bearer ${token}`,
             user: {
                 first_name: user.first_name,
                 last_name: user.last_name,
