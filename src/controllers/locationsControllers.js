@@ -1,4 +1,4 @@
-const City = require("../models/City");
+const City = require("../models/cityModel");
 
 const fetchCities = async (req, res) => {
     try {

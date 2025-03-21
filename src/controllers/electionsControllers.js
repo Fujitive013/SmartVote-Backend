@@ -1,4 +1,5 @@
 const Election = require("../models/electionModel");
+const mongoose = require("mongoose");
 
 // Middleware: Ensure user is admin (For now, assume role is sent in request)
 const isAdmin = (req, res, next) => {
@@ -108,4 +109,52 @@ const getElectionById = async (req, res) => {
     }
 };
 
-module.exports = { isAdmin, createElection, getAllElections, getElectionById };
+const getElectionsByLocation = async (req, res) => {
+    try {
+        let { city_id, baranggay_id: baranggay_id } = req.params; // Get IDs from URL params
+
+        if (!city_id || !baranggay_id) {
+            return res
+                .status(400)
+                .json({ error: "City ID and Barangay ID are required" });
+        }
+
+        // Convert to ObjectId if valid
+        if (mongoose.Types.ObjectId.isValid(city_id)) {
+            city_id = new mongoose.Types.ObjectId(city_id);
+        }
+        if (mongoose.Types.ObjectId.isValid(baranggay_id)) {
+            baranggay_id = new mongoose.Types.ObjectId(baranggay_id);
+        }
+
+        console.log("City ID:", city_id);
+        console.log("Barangay ID:", baranggay_id);
+
+        // Find elections by location
+        const elections = await Election.find({
+            city_id,
+            baranggay_id: baranggay_id,
+        }).populate("candidates._id");
+
+        console.log("Found Elections:", elections);
+
+        if (elections.length === 0) {
+            return res
+                .status(404)
+                .json({ message: "No elections found for this location" });
+        }
+
+        res.json(elections);
+    } catch (err) {
+        console.error("Error fetching elections:", err);
+        res.status(500).json({ error: "Server error" });
+    }
+};
+
+module.exports = {
+    isAdmin,
+    createElection,
+    getAllElections,
+    getElectionById,
+    getElectionsByLocation,
+};

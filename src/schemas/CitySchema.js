@@ -23,4 +23,4 @@ const CitySchema = new mongoose.Schema({
     barangays: [BarangaySchema], // Array of embedded barangay objects
 });
 
-module.exports = mongoose.model("City", CitySchema);
+module.exports = CitySchema;

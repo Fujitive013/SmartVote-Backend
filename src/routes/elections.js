@@ -4,6 +4,7 @@ const {
     createElection,
     getAllElections,
     getElectionById,
+    getElectionsByLocation,
 } = require("../controllers/electionsControllers");
 
 const router = express.Router();
@@ -14,4 +15,5 @@ router.get("/", getAllElections);
 
 router.get("/:id", getElectionById);
 
+router.get("/getByBaranggay/:city_id/:baranggay_id", getElectionsByLocation);
 module.exports = router;
