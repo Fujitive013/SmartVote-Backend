@@ -10,6 +10,8 @@ const UserSchema = new mongoose.Schema(
         voted_elections: [
             { type: mongoose.Schema.Types.ObjectId, ref: "Election" },
         ],
+        city_id: { type: mongoose.Schema.Types.ObjectId, required: true },
+        baranggay_id: { type: mongoose.Schema.Types.ObjectId, required: true },
     },
     {
         timestamps: { createdAt: "created_at", updatedAt: "updated_at" },

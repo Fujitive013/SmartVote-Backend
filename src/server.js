@@ -5,6 +5,7 @@ const packageInfo = require("../package.json");
 const authRouter = require("./routes/auth");
 const electionsRouter = require("./routes/elections");
 const votesRouter = require("./routes/votes");
+const locationsRouter = require("./routes/locations");
 
 const app = express();
 app.use(express.json());
@@ -28,6 +29,7 @@ StartServert();
 app.use("/auth", authRouter);
 app.use("/elections", electionsRouter);
 app.use("/votes", votesRouter);
+app.use("/locations", locationsRouter);
 
 app.get("/", (req, res) => {
     res.status(200).json({

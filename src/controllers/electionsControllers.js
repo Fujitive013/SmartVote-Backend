@@ -11,16 +11,33 @@ const isAdmin = (req, res, next) => {
 // Create election (Admin only)
 const createElection = async (req, res) => {
     try {
-        const { name, description, candidates, start_date, end_date } =
-            req.body;
+        const {
+            name,
+            city_id,
+            baranggay_id,
+            description,
+            candidates,
+            start_date,
+            end_date,
+        } = req.body;
 
         // Validate required fields
-        if (!name || !description || !candidates || !start_date || !end_date) {
+        if (
+            !name ||
+            !description ||
+            !candidates ||
+            !start_date ||
+            !end_date ||
+            !city_id ||
+            !baranggay_id
+        ) {
             return res.status(400).json({ error: "All fields are required" });
         }
 
         const newElection = new Election({
             name,
+            city_id,
+            baranggay_id,
             description,
             candidates,
             start_date,

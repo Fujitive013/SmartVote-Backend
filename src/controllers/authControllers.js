@@ -4,7 +4,8 @@ const jwt = require("jsonwebtoken");
 
 const registerUser = async (req, res) => {
     console.log("Request Body:", req.body);
-    const { first_name, last_name, email, password } = req.body;
+    const { first_name, last_name, email, password, city_id, baranggay_id } =
+        req.body;
 
     try {
         // Check if the user already exists
@@ -23,7 +24,8 @@ const registerUser = async (req, res) => {
             password: hashedPassword,
             role: "voter", // Default role is "voter"
             voted_elections: [],
-            created_at: new Date(),
+            city_id,
+            baranggay_id,
         });
 
         await newUser.save();
@@ -59,6 +61,8 @@ const loginUser = async (req, res) => {
                 role: user.role,
                 first_name: user.first_name,
                 last_name: user.last_name,
+                city_id: user.city_id,
+                baranggay_id: user.baranggay_id,
             },
             process.env.JWT_SECRET,
             { expiresIn: "1h" }
@@ -73,6 +77,8 @@ const loginUser = async (req, res) => {
                 id: user._id,
                 email: user.email,
                 role: user.role,
+                city_id: user.city_id,
+                baranggay_id: user.baranggay_id,
             },
         });
     } catch (err) {
