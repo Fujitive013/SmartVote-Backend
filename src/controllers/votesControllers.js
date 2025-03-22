@@ -109,7 +109,6 @@ const countVotes = async (req, res) => {
 };
 
 // Fetch all votes for a specific user, filtered by barangay_id and city_id
-// Fetch all votes for a specific user, filtered by barangay_id and city_id
 const getUserVotes = async (req, res) => {
   const { voter_id, barangay_id, city_id } = req.query;
 
@@ -137,9 +136,6 @@ const getUserVotes = async (req, res) => {
     // Fallback: Fetch all votes for the user
     const votes = await Vote.find({ voter_id });
 
-    // Log the votes found
-    console.log(`Found ${votes.length} votes for user ${voter_id}`);
-
     // Filter votes if barangay_id and city_id fields exist in the vote model
     let filteredVotes = votes;
     if (barangay_id && city_id) {
@@ -151,10 +147,6 @@ const getUserVotes = async (req, res) => {
           vote.city_id.toString() === city_id.toString()
         );
       });
-
-      console.log(
-        `Filtered to ${filteredVotes.length} votes matching barangay ${barangay_id} and city ${city_id}`
-      );
     }
 
     res.status(200).json({
