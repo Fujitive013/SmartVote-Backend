@@ -14,7 +14,7 @@ app.use(
     cors({
         origin: (origin, callback) => {
             if (!origin || allowedOrigins.includes(origin)) {
-                // Allow requests from Vercel and Postman
+                // Allow requests from Vercel and Postman (null origin)
                 callback(null, true);
             } else {
                 callback(new Error("Not allowed by CORS"));
