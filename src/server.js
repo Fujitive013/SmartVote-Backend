@@ -6,12 +6,29 @@ const authRouter = require("./routes/auth");
 const electionsRouter = require("./routes/elections");
 const votesRouter = require("./routes/votes");
 const locationsRouter = require("./routes/locations");
-
+const cors = require("cors");
 const app = express();
+
+const allowedOrigins = [process.env.API_URL, "http://localhost:3000"];
+app.use(
+    cors({
+        origin: (origin, callback) => {
+            if (!origin || allowedOrigins.includes(origin)) {
+                // Allow requests from Vercel and Postman (null origin)
+                callback(null, true);
+            } else {
+                callback(new Error("Not allowed by CORS"));
+            }
+        },
+        methods: "GET,POST,PUT,DELETE",
+        allowedHeaders: "Content-Type,Authorization",
+    })
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
-const StartServert = async () => {
+const StartServer = async () => {
     try {
         await connectDB();
         console.log("Database connected successfully");
@@ -24,7 +41,7 @@ const StartServert = async () => {
     }
 };
 
-StartServert();
+StartServer();
 
 app.use("/auth", authRouter);
 app.use("/elections", electionsRouter);
