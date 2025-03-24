@@ -1,14 +1,6 @@
 const Election = require("../models/electionModel");
 const mongoose = require("mongoose");
 
-// Middleware: Ensure user is admin (For now, assume role is sent in request)
-const isAdmin = (req, res, next) => {
-    if (req.body.role !== "admin") {
-        return res.status(403).json({ error: "Access denied. Admins only." });
-    }
-    next();
-};
-
 // Create election (Admin only)
 const createElection = async (req, res) => {
     try {
@@ -152,7 +144,6 @@ const getElectionsByLocation = async (req, res) => {
 };
 
 module.exports = {
-    isAdmin,
     createElection,
     getAllElections,
     getElectionById,

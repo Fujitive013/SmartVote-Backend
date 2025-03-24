@@ -1,4 +1,6 @@
 const { body, validationResult } = require("express-validator");
+const { ObjectId } = require("mongodb");
+
 const isValidUserRegister = [
     body("first_name")
         .trim()
@@ -24,6 +26,22 @@ const isValidUserRegister = [
         .withMessage("Password must be a string")
         .isLength({ min: 6 })
         .withMessage("Password must be at least 6 characters long"),
+    body("city_id")
+        .trim()
+        .custom((value) => {
+            if (!ObjectId.isValid(value)) {
+                throw new Error("Invalid city ID");
+            }
+            return true;
+        }, "Invalid city ID"),
+    body("baranggay_id")
+        .trim()
+        .custom((value) => {
+            if (!ObjectId.isValid(value)) {
+                throw new Error("Invalid baranggay ID");
+            }
+            return true;
+        }, "Invalid barangaay ID"),
 ];
 
 const isValidUserLogin = [
@@ -41,6 +59,15 @@ const isValidUserLogin = [
         .withMessage("Password must be at least 6 characters long"),
 ];
 
+const isAdmin = [
+    body("role")
+        .trim()
+        .isString()
+        .withMessage("User role must be a string")
+        .isIn(["admin"])
+        .withMessage("Invalid user role"),
+];
+
 const validateRequest = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -49,4 +76,9 @@ const validateRequest = (req, res, next) => {
     next();
 };
 
-module.exports = { isValidUserRegister, isValidUserLogin, validateRequest };
+module.exports = {
+    isValidUserRegister,
+    isValidUserLogin,
+    isAdmin,
+    validateRequest,
+};

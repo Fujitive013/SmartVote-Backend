@@ -1,15 +1,15 @@
 const express = require("express");
 const {
-    isAdmin,
     createElection,
     getAllElections,
     getElectionById,
     getElectionsByLocation,
 } = require("../controllers/electionsControllers");
+const { isAdmin, validateRequest } = require("../utils/isValidUser");
 
 const router = express.Router();
 
-router.post("/", isAdmin, createElection);
+router.post("/", isAdmin, validateRequest, createElection);
 
 router.get("/", getAllElections);
 
