@@ -63,6 +63,7 @@ const loginUser = async (req, res) => {
                 last_name: user.last_name,
                 city_id: user.city_id,
                 baranggay_id: user.baranggay_id,
+                voted_elections: user.voted_elections,
             },
             process.env.JWT_SECRET,
             { expiresIn: "1h" }
@@ -79,6 +80,7 @@ const loginUser = async (req, res) => {
                 role: user.role,
                 city_id: user.city_id,
                 baranggay_id: user.baranggay_id,
+                voted_elections: user.voted_elections,
             },
         });
     } catch (err) {
