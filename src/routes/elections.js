@@ -6,14 +6,19 @@ const {
     getElectionsByLocation,
 } = require("../controllers/electionsControllers");
 const { isAdmin, validateRequest } = require("../utils/isValidUser");
+const { authenticateUser } = require("../utils/authUtils");
 
 const router = express.Router();
 
-router.post("/", isAdmin, validateRequest, createElection);
+router.post("/", authenticateUser, isAdmin, validateRequest, createElection);
 
-router.get("/", getAllElections);
+router.get("/", authenticateUser, getAllElections);
 
-router.get("/:id", getElectionById);
+router.get("/:id", authenticateUser, getElectionById);
 
-router.get("/getByBaranggay/:city_id/:baranggay_id", getElectionsByLocation);
+router.get(
+    "/getByBaranggay/:city_id/:baranggay_id",
+    authenticateUser,
+    getElectionsByLocation
+);
 module.exports = router;
