@@ -2,6 +2,18 @@
   "name": "smartvote-backend",
   "version": "1.2.2",
   "main": "index.js",
+  "contributors": [
+    {
+      "name": "Dadacay, Ivan Emmanuel",
+      "role": "Frontend Developer"
+    },{
+      "name": "Padraque, Alexandra Abegail",
+      "role": "UI/UX Designer"
+    },{
+      "name": "Paredes, Axel",
+      "role": "Backend Developer"
+    }
+],
   "scripts": {
     "start": "node src/server.js",
     "devStart": "nodemon src/server.js"
