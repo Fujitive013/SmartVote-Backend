@@ -53,6 +53,7 @@ app.get("/", (req, res) => {
         status: "online",
         id: packageInfo.version,
         message: packageInfo.name,
+        members: packageInfo.contributors,
     });
     console.log(`System ${packageInfo.name} is running`);
 });
