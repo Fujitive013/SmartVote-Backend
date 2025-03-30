@@ -4,7 +4,7 @@ const ElectionSchema = new mongoose.Schema(
     {
         name: { type: String, required: true, trim: true },
         city_id: { type: mongoose.Schema.Types.ObjectId, required: true },
-        baranggay_id: { type: mongoose.Schema.Types.ObjectId, required: true },
+        baranggay_id: { type: mongoose.Schema.Types.ObjectId, default: null },
         description: { type: String, required: true, trim: true },
 
         candidates: [

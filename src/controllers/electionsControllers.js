@@ -21,8 +21,7 @@ const createElection = async (req, res) => {
             !candidates ||
             !start_date ||
             !end_date ||
-            !city_id ||
-            !baranggay_id
+            !city_id
         ) {
             return res.status(400).json({ error: "All fields are required" });
         }
@@ -76,7 +75,8 @@ const getAllElections = async (req, res) => {
 // Get election details by ID
 const getElectionById = async (req, res) => {
     try {
-        const election = await Election.findById(req.params.id).populate(
+        const electionId = req.params.id;
+        const election = await Election.findById(electionId).populate(
             "candidates._id"
         );
 
@@ -103,37 +103,53 @@ const getElectionById = async (req, res) => {
 
 const getElectionsByLocation = async (req, res) => {
     try {
-        let { city_id, baranggay_id: baranggay_id } = req.params; // Get IDs from URL params
+        let { city_id, baranggay_id } = req.params; // Extract parameters
 
-        if (!city_id || !baranggay_id) {
-            return res
-                .status(400)
-                .json({ error: "City ID and Barangay ID are required" });
+        // Validate city_id
+        if (!mongoose.Types.ObjectId.isValid(city_id)) {
+            return res.status(400).json({ message: "Invalid city_id" });
+        }
+        city_id = new mongoose.Types.ObjectId(city_id);
+
+        // ✅ Check if baranggay_id is missing
+        if (!baranggay_id || baranggay_id === "null") {
+            // Find city-wide elections (where baranggay_id is null)
+            const elections = await Election.find({
+                city_id,
+                baranggay_id: null,
+            }).populate("candidates");
+
+            console.log("Found City Elections:", elections);
+
+            if (elections.length === 0) {
+                return res
+                    .status(404)
+                    .json({ message: "No city-wide elections found" });
+            }
+
+            return res.json(elections);
         }
 
-        // Convert to ObjectId if valid
-        if (mongoose.Types.ObjectId.isValid(city_id)) {
-            city_id = new mongoose.Types.ObjectId(city_id);
+        // ✅ If baranggay_id is provided, validate it
+        if (!mongoose.Types.ObjectId.isValid(baranggay_id)) {
+            return res.status(400).json({ message: "Invalid baranggay_id" });
         }
-        if (mongoose.Types.ObjectId.isValid(baranggay_id)) {
-            baranggay_id = new mongoose.Types.ObjectId(baranggay_id);
-        }
+        baranggay_id = new mongoose.Types.ObjectId(baranggay_id);
 
-        console.log("City ID:", city_id);
-        console.log("Barangay ID:", baranggay_id);
+        console.log("Fetching barangay-specific elections...");
 
-        // Find elections by location
+        // Find barangay-specific elections
         const elections = await Election.find({
             city_id,
-            baranggay_id: baranggay_id,
-        }).populate("candidates._id");
+            baranggay_id,
+        }).populate("candidates");
 
-        console.log("Found Elections:", elections);
+        console.log("Found Barangay Elections:", elections);
 
         if (elections.length === 0) {
             return res
                 .status(404)
-                .json({ message: "No elections found for this location" });
+                .json({ message: "No barangay elections found" });
         }
 
         res.json(elections);

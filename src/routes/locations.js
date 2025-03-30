@@ -3,5 +3,5 @@ const fetchCities = require("../controllers/locationsControllers");
 const { authenticateUser } = require("../utils/authUtils");
 
 const router = express.Router();
-router.get("/fetchCities", authenticateUser, fetchCities);
+router.get("/fetchCities/:id", authenticateUser, fetchCities);
 module.exports = router;

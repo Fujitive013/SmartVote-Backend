@@ -12,6 +12,7 @@ const comparePassword = async (password, hashedPassword) => {
 
 const authenticateUser = async (req, res, next) => {
     const authHeader = req.header("Authorization");
+    console.log(authHeader);
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
         return res.status(401).json({ error: "Authorization header required" });
     }

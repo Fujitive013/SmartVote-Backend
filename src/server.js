@@ -44,6 +44,9 @@ const StartServer = async () => {
 StartServer();
 
 app.use("/auth", authRouter);
+
+// app.use authenticate middleware
+
 app.use("/elections", electionsRouter);
 app.use("/votes", votesRouter);
 app.use("/locations", locationsRouter);

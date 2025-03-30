@@ -17,7 +17,7 @@ router.get("/", authenticateUser, getAllElections);
 router.get("/:id", authenticateUser, getElectionById);
 
 router.get(
-    "/getByBaranggay/:city_id/:baranggay_id",
+    "/getByLocation/:city_id/:baranggay_id?",
     authenticateUser,
     getElectionsByLocation
 );
