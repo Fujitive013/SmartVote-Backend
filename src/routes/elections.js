@@ -10,7 +10,7 @@ const { authenticateUser } = require("../utils/authUtils");
 
 const router = express.Router();
 
-router.post("/", authenticateUser, isAdmin, validateRequest, createElection);
+router.post("/", authenticateUser, isAdmin, validateRequest, createElection); // dapat sa token mag checking sa role
 
 router.get("/", authenticateUser, getAllElections);
 

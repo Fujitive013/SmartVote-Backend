@@ -103,19 +103,19 @@ const getElectionById = async (req, res) => {
 
 const getElectionsByLocation = async (req, res) => {
     try {
-        let { city_id, baranggay_id } = req.params; // Extract parameters
+        const { city_id, baranggay_id } = req.params; // Extract parameters
 
         // Validate city_id
         if (!mongoose.Types.ObjectId.isValid(city_id)) {
             return res.status(400).json({ message: "Invalid city_id" });
         }
-        city_id = new mongoose.Types.ObjectId(city_id);
+        const cityObjectId = new mongoose.Types.ObjectId(city_id);
 
-        // ✅ Check if baranggay_id is missing
+        // Check if baranggay_id is missing
         if (!baranggay_id || baranggay_id === "null") {
             // Find city-wide elections (where baranggay_id is null)
             const elections = await Election.find({
-                city_id,
+                city_id: cityObjectId,
                 baranggay_id: null,
             }).populate("candidates");
 
@@ -130,18 +130,18 @@ const getElectionsByLocation = async (req, res) => {
             return res.json(elections);
         }
 
-        // ✅ If baranggay_id is provided, validate it
+        // If baranggay_id is provided, validate it
         if (!mongoose.Types.ObjectId.isValid(baranggay_id)) {
             return res.status(400).json({ message: "Invalid baranggay_id" });
         }
-        baranggay_id = new mongoose.Types.ObjectId(baranggay_id);
+        const baranggayObjectId = new mongoose.Types.ObjectId(baranggay_id);
 
         console.log("Fetching barangay-specific elections...");
 
         // Find barangay-specific elections
         const elections = await Election.find({
-            city_id,
-            baranggay_id,
+            city_id: cityObjectId,
+            baranggay_id: baranggayObjectId,
         }).populate("candidates");
 
         console.log("Found Barangay Elections:", elections);

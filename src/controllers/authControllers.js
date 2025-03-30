@@ -23,7 +23,7 @@ const registerUser = async (req, res) => {
             email,
             password: hashedPassword,
             role: "voter", // Default role is "voter"
-            voted_elections: [],
+            voted_elections: [], // refetch this after voting
             city_id,
             baranggay_id,
         });
