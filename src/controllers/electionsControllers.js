@@ -136,20 +136,20 @@ const getElectionsByLocation = async (req, res) => {
         }
         const baranggayObjectId = new mongoose.Types.ObjectId(baranggay_id);
 
-        console.log("Fetching barangay-specific elections...");
+        console.log("Fetching baranggay-specific elections...");
 
-        // Find barangay-specific elections
+        // Find baranggay-specific elections
         const elections = await Election.find({
             city_id: cityObjectId,
             baranggay_id: baranggayObjectId,
         }).populate("candidates");
 
-        console.log("Found Barangay Elections:", elections);
+        console.log("Found baranggay Elections:", elections);
 
         if (elections.length === 0) {
             return res
                 .status(404)
-                .json({ message: "No barangay elections found" });
+                .json({ message: "No baranggay elections found" });
         }
 
         res.json(elections);

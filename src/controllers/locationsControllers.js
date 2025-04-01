@@ -14,4 +14,14 @@ const fetchCities = async (req, res) => {
     }
 };
 
-module.exports = fetchCities;
+const fetchCitiesAll = async (req, res) => {
+    try {
+        const cities = await City.find().populate("baranggays._id");
+        res.status(200).json(cities);
+    } catch (err) {
+        console.error("Error fetching all cities:", err);
+        res.status(500).json({ error: "Server error" });
+    }
+};
+
+module.exports = { fetchCities, fetchCitiesAll };
