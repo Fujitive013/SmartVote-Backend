@@ -8,6 +8,6 @@ const { authenticateUser } = require("../utils/authUtils");
 const router = express.Router();
 
 router.get("/fetchCities/:id", authenticateUser, fetchCities);
-router.get("/fetchCitiesAll", authenticateUser, fetchCitiesAll);
+router.get("/fetchCitiesAll", fetchCitiesAll);
 
 module.exports = router;
