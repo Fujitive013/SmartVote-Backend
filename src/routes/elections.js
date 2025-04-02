@@ -5,8 +5,11 @@ const {
     getElectionById,
     getElectionsByLocation,
 } = require("../controllers/electionsControllers");
-const { isAdmin, validateRequest } = require("../utils/isValidUser");
-const { authenticateUser } = require("../utils/authUtils");
+const {
+    isAdmin,
+    validateRequest,
+} = require("../middlewares/validationMiddleware");
+const { authenticateUser } = require("../middlewares/authMiddleware");
 
 const router = express.Router();
 

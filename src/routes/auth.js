@@ -4,7 +4,7 @@ const {
     isValidUserRegister,
     isValidUserLogin,
     validateRequest,
-} = require("../utils/isValidUser");
+} = require("../middlewares/validationMiddleware");
 
 const router = express.Router();
 

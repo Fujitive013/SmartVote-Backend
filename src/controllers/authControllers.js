@@ -1,6 +1,6 @@
 const User = require("../models/userModel");
 const { hashPassword, comparePassword } = require("../utils/authUtils");
-const jwt = require("jsonwebtoken");
+const { generateToken } = require("../utils/jwtUtils");
 
 const registerUser = async (req, res) => {
     console.log("Request Body:", req.body);
@@ -42,33 +42,17 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
     try {
-        // Find user by email
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(400).json({ error: "Invalid email or password" });
         }
 
-        // Use comparePassword from authUtils
         const isPasswordValid = await comparePassword(password, user.password);
         if (!isPasswordValid) {
             return res.status(400).json({ error: "Invalid email or password" });
         }
 
-        const token = jwt.sign(
-            {
-                id: user._id,
-                email: user.email,
-                role: user.role,
-                first_name: user.first_name,
-                last_name: user.last_name,
-                city_id: user.city_id,
-                baranggay_id: user.baranggay_id,
-                voted_elections: user.voted_elections,
-            },
-            process.env.JWT_SECRET,
-            { expiresIn: "1h" }
-        );
-
+        const token = generateToken(user);
         res.status(200).json({
             message: "Login successful",
             token: `Bearer ${token}`,

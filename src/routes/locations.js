@@ -3,7 +3,7 @@ const {
     fetchCities,
     fetchCitiesAll,
 } = require("../controllers/locationsControllers");
-const { authenticateUser } = require("../utils/authUtils");
+const { authenticateUser } = require("../middlewares/authMiddleware");
 
 const router = express.Router();
 

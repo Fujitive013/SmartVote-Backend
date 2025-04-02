@@ -5,7 +5,8 @@ const {
     getVoteStatus,
     countVotes,
 } = require("../controllers/votesControllers");
-const { authenticateUser } = require("../utils/authUtils");
+const { authenticateUser } = require("../middlewares/authMiddleware");
+
 
 const router = express.Router();
 
