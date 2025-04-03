@@ -12,6 +12,7 @@ const UserSchema = new mongoose.Schema(
         ],
         city_id: { type: mongoose.Schema.Types.ObjectId, required: true },
         baranggay_id: { type: mongoose.Schema.Types.ObjectId, required: true },
+        refresh_token: { type: String, default: null },
     },
     {
         timestamps: { createdAt: "created_at", updatedAt: "updated_at" },

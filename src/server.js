@@ -6,24 +6,11 @@ const authRouter = require("./routes/auth");
 const electionsRouter = require("./routes/elections");
 const votesRouter = require("./routes/votes");
 const locationsRouter = require("./routes/locations");
-const cors = require("cors");
+const corsConfig = require("./config/corsConfig");
 const app = express();
+const { authenticateUser } = require("./middlewares/authMiddleware");
 
-const allowedOrigins = [process.env.API_URL, "http://localhost:3000"];
-app.use(
-    cors({
-        origin: (origin, callback) => {
-            if (!origin || allowedOrigins.includes(origin)) {
-                // Allow requests from Vercel and Postman (null origin)
-                callback(null, true);
-            } else {
-                callback(new Error("Not allowed by CORS"));
-            }
-        },
-        methods: "GET,POST,PUT,DELETE",
-        allowedHeaders: "Content-Type,Authorization",
-    })
-);
+app.use(corsConfig);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
@@ -44,13 +31,6 @@ const StartServer = async () => {
 StartServer();
 
 app.use("/auth", authRouter);
-
-// app.use authenticate middleware
-
-app.use("/elections", electionsRouter);
-app.use("/votes", votesRouter);
-app.use("/locations", locationsRouter);
-
 app.get("/", (req, res) => {
     res.status(200).json({
         status: "online",
@@ -61,7 +41,8 @@ app.get("/", (req, res) => {
     console.log(`System ${packageInfo.name} is running`);
 });
 
-app.get("/test", (req, res) => {
-    res.status(200).json({ message: "Server is running correctly" });
-    console.log("Test message received");
-});
+// app.use authenticate middleware
+app.use(authenticateUser); // no need to specify sa each route
+app.use("/elections", electionsRouter);
+app.use("/votes", votesRouter);
+app.use("/locations", locationsRouter);

@@ -9,19 +9,14 @@ const {
     isAdmin,
     validateRequest,
 } = require("../middlewares/validationMiddleware");
-const { authenticateUser } = require("../middlewares/authMiddleware");
 
 const router = express.Router();
 
-router.post("/", authenticateUser, isAdmin, validateRequest, createElection); // dapat sa token mag checking sa role
+router.post("/", isAdmin, validateRequest, createElection); // dapat sa token mag checking sa role
 
-router.get("/", authenticateUser, getAllElections);
+router.get("/", getAllElections);
 
-router.get("/:id", authenticateUser, getElectionById);
+router.get("/:id", getElectionById);
 
-router.get(
-    "/getByLocation/:city_id/:baranggay_id?",
-    authenticateUser,
-    getElectionsByLocation
-);
+router.get("/getByLocation/:city_id/:baranggay_id?", getElectionsByLocation);
 module.exports = router;

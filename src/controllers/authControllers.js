@@ -1,6 +1,10 @@
 const User = require("../models/userModel");
 const { hashPassword, comparePassword } = require("../utils/authUtils");
-const { generateToken } = require("../utils/jwtUtils");
+const {
+    generateAccessToken,
+    generateRefreshToken,
+    decodeToken,
+} = require("../utils/jwtUtils");
 
 const registerUser = async (req, res) => {
     console.log("Request Body:", req.body);
@@ -8,13 +12,11 @@ const registerUser = async (req, res) => {
         req.body;
 
     try {
-        // Check if the user already exists
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ error: "Email already in use" });
         }
 
-        // Use hashPassword from authUtils
         const hashedPassword = await hashPassword(password.trim());
 
         const newUser = new User({
@@ -22,8 +24,8 @@ const registerUser = async (req, res) => {
             last_name,
             email,
             password: hashedPassword,
-            role: "voter", // Default role is "voter"
-            voted_elections: [], // refetch this after voting
+            role: "voter",
+            voted_elections: [],
             city_id,
             baranggay_id,
         });
@@ -52,10 +54,17 @@ const loginUser = async (req, res) => {
             return res.status(400).json({ error: "Invalid email or password" });
         }
 
-        const token = generateToken(user);
+        const accessToken = generateAccessToken(user);
+        const refreshToken = generateRefreshToken(user);
+        const hashedRefreshToken = await hashPassword(refreshToken);
+
+        user.refresh_token = hashedRefreshToken;
+        await user.save();
+
         res.status(200).json({
             message: "Login successful",
-            token: `Bearer ${token}`,
+            token: `Bearer ${accessToken}`,
+            refresh_token: refreshToken,
             user: {
                 first_name: user.first_name,
                 last_name: user.last_name,
@@ -73,4 +82,63 @@ const loginUser = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser };
+const logoutUser = async (req, res) => {
+    const { email } = req.body;
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({ error: "User not found" });
+        }
+
+        user.refresh_token = null;
+        await user.save();
+
+        res.status(200).json({ message: "Logout successful" });
+    } catch (err) {
+        console.error("Error logging out:", err);
+        res.status(500).json({ error: "Error logging out." });
+    }
+};
+
+const newToken = async (req, res) => {
+    const { refresh_token } = req.body;
+
+    if (!refresh_token) {
+        return res.status(400).json({ error: "Refresh token is required" });
+    }
+
+    try {
+        const decoded = decodeToken(refresh_token);
+        if (!decoded) {
+            return res.status(401).json({ error: "Invalid refresh token" });
+        }
+
+        const user = await User.findById(decoded.id);
+        if (!user || !user.refresh_token) {
+            return res.status(401).json({ error: "Invalid refresh token" });
+        }
+
+        const isRefreshTokenValid = await comparePassword(
+            refresh_token,
+            user.refresh_token
+        );
+        if (!isRefreshTokenValid) {
+            return res.status(401).json({ error: "Invalid refresh token" });
+        }
+
+        const newAccessToken = generateAccessToken(user);
+
+        res.status(200).json({
+            message: "Access token refreshed successfully",
+            access_token: `Bearer ${newAccessToken}`,
+        });
+    } catch (err) {
+        if (err.name === "TokenExpiredError" || err.message === "jwt expired") {
+            return res.status(401).json({ error: "Refresh token has expired" });
+        }
+        console.error("Error generating new token:", err);
+        res.status(500).json({ error: "Error generating new token." });
+    }
+};
+
+module.exports = { registerUser, loginUser, logoutUser, newToken };

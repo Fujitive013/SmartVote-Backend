@@ -5,14 +5,12 @@ const {
     getVoteStatus,
     countVotes,
 } = require("../controllers/votesControllers");
-const { authenticateUser } = require("../middlewares/authMiddleware");
-
 
 const router = express.Router();
 
-router.post("/", authenticateUser, castVote);
-router.get("/check", authenticateUser, checkVote);
-router.get("/status", authenticateUser, getVoteStatus);
-router.get("/count/:candidate_id", authenticateUser, countVotes);
+router.post("/", castVote);
+router.get("/check", checkVote);
+router.get("/status", getVoteStatus);
+router.get("/count/:candidate_id", countVotes);
 
 module.exports = router;
