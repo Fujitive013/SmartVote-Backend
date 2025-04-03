@@ -40,6 +40,10 @@ app.get("/", (req, res) => {
     });
     console.log(`System ${packageInfo.name} is running`);
 });
+app.get("/test", (req, res) => {
+    res.status(200).json({ message: "Server is running correctly" });
+    console.log("Test message received");
+});
 
 // app.use authenticate middleware
 app.use(authenticateUser); // no need to specify sa each route
