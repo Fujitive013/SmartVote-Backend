@@ -1,5 +1,10 @@
-# local env files
-.env*.local
+# Ignore local environment files
 .env
+.env*.local
 
-node_modules
+# Ignore Docker files
+Dockerfile
+docker-composer.yml
+
+# Ignore node_modules
+node_modules/
