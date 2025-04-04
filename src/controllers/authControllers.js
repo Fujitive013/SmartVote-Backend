@@ -10,15 +10,12 @@ const registerUser = async (req, res) => {
     console.log("Request Body:", req.body);
     const { first_name, last_name, email, password, city_id, baranggay_id } =
         req.body;
-
     try {
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ error: "Email already in use" });
         }
-
         const hashedPassword = await hashPassword(password.trim());
-
         const newUser = new User({
             first_name,
             last_name,
@@ -29,7 +26,6 @@ const registerUser = async (req, res) => {
             city_id,
             baranggay_id,
         });
-
         await newUser.save();
         res.status(201).json({ message: "User created successfully" });
     } catch (err) {
@@ -53,12 +49,10 @@ const loginUser = async (req, res) => {
         if (!isPasswordValid) {
             return res.status(400).json({ error: "Invalid email or password" });
         }
-
         const accessToken = generateAccessToken(user);
         const refreshToken = generateRefreshToken(user);
-        const hashedRefreshToken = await hashPassword(refreshToken);
-
-        user.refresh_token = hashedRefreshToken;
+        // Store the refresh token directly in the database
+        user.refresh_token = refreshToken;
         await user.save();
 
         res.status(200).json({
@@ -114,15 +108,7 @@ const newToken = async (req, res) => {
         }
 
         const user = await User.findById(decoded.id);
-        if (!user || !user.refresh_token) {
-            return res.status(401).json({ error: "Invalid refresh token" });
-        }
-
-        const isRefreshTokenValid = await comparePassword(
-            refresh_token,
-            user.refresh_token
-        );
-        if (!isRefreshTokenValid) {
+        if (!user || user.refresh_token !== refresh_token) {
             return res.status(401).json({ error: "Invalid refresh token" });
         }
 

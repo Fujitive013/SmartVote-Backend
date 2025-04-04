@@ -50,4 +50,3 @@ app.use("/locations", locationsRouter);
 app.use(authenticateUser); // no need to specify sa each route
 app.use("/elections", electionsRouter);
 app.use("/votes", votesRouter);
-
