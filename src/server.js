@@ -44,9 +44,10 @@ app.get("/test", (req, res) => {
     res.status(200).json({ message: "Server is running correctly" });
     console.log("Test message received");
 });
+app.use("/locations", locationsRouter);
 
 // app.use authenticate middleware
 app.use(authenticateUser); // no need to specify sa each route
 app.use("/elections", electionsRouter);
 app.use("/votes", votesRouter);
-app.use("/locations", locationsRouter);
+
