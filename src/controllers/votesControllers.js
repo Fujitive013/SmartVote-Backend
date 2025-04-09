@@ -194,6 +194,10 @@ const getCurrentElectionResults = async (req, res) => {
         res.status(200).json({
             electionId: election_id,
             totalVotes: results.reduce((sum, curr) => sum + curr.voteCount, 0),
+            // sum: accumulator (running total)
+            // curr: current item being processed
+            // curr.voteCount: vote count for current candidate
+            // 0: initial value for sum
             results,
         });
     } catch (err) {
