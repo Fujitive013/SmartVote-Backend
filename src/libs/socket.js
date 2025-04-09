@@ -1,4 +1,5 @@
 const socketIO = require("socket.io");
+const mongoose = require("mongoose");
 
 let io;
 
@@ -19,8 +20,26 @@ const initializeSocket = (server) => {
 
         // Join election room
         socket.on("joinElection", (electionId) => {
-            socket.join(`election-${electionId}`);
-            console.log(`Socket ${socket.id} joined election ${electionId}`);
+            try {
+                if (!mongoose.Types.ObjectId.isValid(electionId)) {
+                    socket.emit("error", "Invalid election ID format");
+                    return;
+                }
+                socket.join(`election-${electionId}`);
+                console.log(`Socket ${socket.id} joined election ${electionId}`);
+                
+                // Send initial election results
+                getCurrentElectionResults(electionId)
+                    .then(results => {
+                        socket.emit("electionUpdate", results);
+                    })
+                    .catch(err => {
+                        console.error("Error fetching initial results:", err);
+                    });
+            } catch (error) {
+                console.error("Error joining election room:", error);
+                socket.emit("error", "Failed to join election room");
+            }
         });
 
         // Leave election room
@@ -45,11 +64,12 @@ const getIO = () => {
 };
 
 // Helper function to emit updated results
-const emitElectionUpdate = (electionId, results) => {
+const emitElectionUpdate = (electionId, data) => {
     if (!io) return;
     io.to(`election-${electionId}`).emit("electionUpdate", {
         electionId,
-        results,
+        totalVotes: data.totalVotes,
+        results: data.results,
     });
 };
 

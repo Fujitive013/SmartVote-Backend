@@ -54,10 +54,31 @@ const castVote = async (req, res) => {
                     voteCount: { $sum: 1 },
                 },
             },
+            {
+                $project: {
+                    candidate_id: "$_id",
+                    candidateName: 1,
+                    voteCount: 1,
+                    _id: 0,
+                },
+            },
+            {
+                $sort: { voteCount: -1 },
+            },
         ]);
 
-        // Emit updated results to connected clients
-        emitElectionUpdate(election_id, results);
+        // Calculate total votes
+        const totalVotes = results.reduce(
+            (sum, curr) => sum + curr.voteCount,
+            0
+        );
+
+        // Emit updated results with consistent format
+        emitElectionUpdate(election_id, {
+            electionId: election_id,
+            totalVotes,
+            results,
+        });
 
         res.status(201).json({ message: "Vote submitted successfully" });
     } catch (err) {
