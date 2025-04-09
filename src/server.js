@@ -1,4 +1,5 @@
 const express = require("express");
+const http = require("http");
 require("dotenv").config();
 const connectDB = require("./libs/db");
 const packageInfo = require("../package.json");
@@ -7,7 +8,9 @@ const electionsRouter = require("./routes/elections");
 const votesRouter = require("./routes/votes");
 const locationsRouter = require("./routes/locations");
 const corsConfig = require("./config/corsConfig");
+const { initializeSocket } = require("./libs/socket");
 const app = express();
+const server = http.createServer(app);
 const { authenticateUser } = require("./middlewares/authMiddleware");
 
 app.use(corsConfig);
@@ -20,7 +23,9 @@ const StartServer = async () => {
         await connectDB();
         console.log("Database connected successfully");
         const PORT = process.env.PORT || 3000;
-        app.listen(PORT, () => {
+
+        initializeSocket(server); // Initialize socket.io with the server
+        server.listen(PORT, () => {
             console.log(`Server is running on port ${PORT}`);
         });
     } catch (error) {
