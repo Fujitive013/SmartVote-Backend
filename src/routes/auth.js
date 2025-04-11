@@ -11,10 +11,19 @@ const {
     validateRequest,
 } = require("../middlewares/validationMiddleware");
 
+const limiter = require("../libs/rateLimit"); // Changed to direct import
+
 const router = express.Router();
 
-router.post("/register", isValidUserRegister, validateRequest, registerUser);
-router.post("/login", isValidUserLogin, validateRequest, loginUser);
+// Apply rate limiting to both register and login routes
+router.post(
+    "/register",
+    limiter,
+    isValidUserRegister,
+    validateRequest,
+    registerUser
+);
+router.post("/login", limiter, isValidUserLogin, validateRequest, loginUser);
 router.post("/logout", logoutUser);
 router.get("/refresh-token", newToken);
 
