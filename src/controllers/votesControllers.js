@@ -1,7 +1,7 @@
 const Vote = require("../models/voteModel");
 const User = require("../models/userModel");
 const mongoose = require("mongoose");
-const { emitElectionUpdate } = require("../libs/socket");
+const { emitResultsUpdate } = require("../libs/socket");
 
 // Cast a vote
 const castVote = async (req, res) => {
@@ -74,7 +74,7 @@ const castVote = async (req, res) => {
         );
 
         // Emit updated results with consistent format
-        emitElectionUpdate(election_id, {
+        emitResultsUpdate(election_id, {
             electionId: election_id,
             totalVotes,
             results,

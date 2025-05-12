@@ -4,7 +4,9 @@ const {
     getAllElections,
     getElectionById,
     getElectionsByLocation,
+    getCurrentElectionResults,
 } = require("../controllers/electionsControllers");
+
 const {
     isAdmin,
     validateRequest,
@@ -12,11 +14,15 @@ const {
 
 const router = express.Router();
 
-router.post("/", isAdmin, validateRequest, createElection); // dapat sa token mag checking sa role
-
+// Create election (admin only)
+router.post("/", isAdmin, validateRequest, createElection);
 router.get("/", getAllElections);
+router.get("/results/:election_id", getCurrentElectionResults);
 
+// Get elections by location
+router.get("/getByLocation/:city_id/:baranggay_id?", getElectionsByLocation);
+
+// Get specific election by ID
 router.get("/:id", getElectionById);
 
-router.get("/getByLocation/:city_id/:baranggay_id?", getElectionsByLocation);
 module.exports = router;

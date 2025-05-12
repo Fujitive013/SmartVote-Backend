@@ -1,76 +1,70 @@
-const socketIO = require("socket.io");
-const mongoose = require("mongoose");
+const { Server } = require("socket.io");
+const {
+    getCurrentElectionResults,
+} = require("../controllers/electionsControllers");
 
 let io;
 
 const initializeSocket = (server) => {
-    io = socketIO(server, {
+    io = new Server(server, {
         cors: {
-            origin:
-                process.env.CLIENT_URL ||
-                process.env.API_URL ||
-                "http://localhost:3000",
+            origin: "*",
             methods: ["GET", "POST"],
-            credentials: true,
         },
     });
 
     io.on("connection", (socket) => {
         console.log("A user connected:", socket.id);
 
-        // Join election room
-        socket.on("joinElection", (electionId) => {
+        socket.on("joinElectionRoom", async (electionId) => {
             try {
-                if (!mongoose.Types.ObjectId.isValid(electionId)) {
-                    socket.emit("error", "Invalid election ID format");
-                    return;
-                }
-                socket.join(`election-${electionId}`);
-                console.log(`Socket ${socket.id} joined election ${electionId}`);
-                
-                // Send initial election results
-                getCurrentElectionResults(electionId)
-                    .then(results => {
-                        socket.emit("electionUpdate", results);
-                    })
-                    .catch(err => {
-                        console.error("Error fetching initial results:", err);
-                    });
-            } catch (error) {
-                console.error("Error joining election room:", error);
-                socket.emit("error", "Failed to join election room");
+                socket.join(electionId);
+                console.log(
+                    `Socket ${socket.id} joined election ${electionId}`
+                );
+
+                // Emit current results to the new user
+                const fakeRes = {
+                    status: () => ({
+                        json: (data) => {
+                            socket.emit("electionResults", data);
+                        },
+                    }),
+                };
+                const fakeReq = { params: { election_id: electionId } };
+
+                await getCurrentElectionResults(fakeReq, fakeRes);
+            } catch (err) {
+                console.error("Error joining election room:", err);
             }
         });
 
-        // Leave election room
-        socket.on("leaveElection", (electionId) => {
-            socket.leave(`election-${electionId}`);
-            console.log(`Socket ${socket.id} left election ${electionId}`);
-        });
-
         socket.on("disconnect", () => {
-            console.log("User disconnected:", socket.id);
+            console.log("A user disconnected:", socket.id);
         });
     });
-
-    return io;
 };
 
-const getIO = () => {
-    if (!io) {
-        throw new Error("Socket.io not initialized");
-    }
-    return io;
-};
-
-// Helper function to emit updated results
-const emitElectionUpdate = (electionId, data) => {
+const emitResultsUpdate = async (electionId) => {
     if (!io) return;
-    io.to(`election-${electionId}`).emit("electionUpdate", {
-        electionId,
-        totalVotes: data.totalVotes,
-        results: data.results,
-    });
+
+    try {
+        const fakeRes = {
+            status: () => ({
+                json: (data) => {
+                    io.to(electionId).emit("electionResults", data);
+                },
+            }),
+        };
+        const fakeReq = { params: { election_id: electionId } };
+
+        await getCurrentElectionResults(fakeReq, fakeRes);
+    } catch (err) {
+        console.error("Error emitting updated results:", err);
+    }
 };
 
-module.exports = { initializeSocket, getIO, emitElectionUpdate };
+module.exports = {
+    initializeSocket,
+    emitResultsUpdate,
+};

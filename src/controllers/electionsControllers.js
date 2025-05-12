@@ -1,4 +1,5 @@
 const Election = require("../models/electionModel");
+const Vote = require("../models/voteModel");
 const mongoose = require("mongoose");
 
 // Create election (Admin only)
@@ -14,7 +15,6 @@ const createElection = async (req, res) => {
             end_date,
         } = req.body;
 
-        // Validate required fields
         if (
             !name ||
             !description ||
@@ -52,7 +52,6 @@ const getAllElections = async (req, res) => {
     try {
         const elections = await Election.find().populate("candidates._id");
 
-        // Auto-update election status before sending response
         const updatedElections = elections.map((election) => {
             const now = new Date();
             if (now < election.start_date) {
@@ -72,7 +71,7 @@ const getAllElections = async (req, res) => {
     }
 };
 
-// Get election details by ID
+// Get election by ID
 const getElectionById = async (req, res) => {
     try {
         const electionId = req.params.id;
@@ -84,7 +83,6 @@ const getElectionById = async (req, res) => {
             return res.status(404).json({ error: "Election not found" });
         }
 
-        // Auto-update status before sending response
         const now = new Date();
         if (now < election.start_date) {
             election.status = "upcoming";
@@ -101,25 +99,22 @@ const getElectionById = async (req, res) => {
     }
 };
 
+// Get elections by location
 const getElectionsByLocation = async (req, res) => {
     try {
-        const { city_id, baranggay_id } = req.params; // Extract parameters
+        const { city_id, baranggay_id } = req.params;
 
-        // Validate city_id
         if (!mongoose.Types.ObjectId.isValid(city_id)) {
             return res.status(400).json({ message: "Invalid city_id" });
         }
+
         const cityObjectId = new mongoose.Types.ObjectId(city_id);
 
-        // Check if baranggay_id is missing
         if (!baranggay_id || baranggay_id === "null") {
-            // Find city-wide elections (where baranggay_id is null)
             const elections = await Election.find({
                 city_id: cityObjectId,
                 baranggay_id: null,
             }).populate("candidates");
-
-            console.log("Found City Elections:", elections);
 
             if (elections.length === 0) {
                 return res
@@ -130,21 +125,16 @@ const getElectionsByLocation = async (req, res) => {
             return res.json(elections);
         }
 
-        // If baranggay_id is provided, validate it
         if (!mongoose.Types.ObjectId.isValid(baranggay_id)) {
             return res.status(400).json({ message: "Invalid baranggay_id" });
         }
+
         const baranggayObjectId = new mongoose.Types.ObjectId(baranggay_id);
 
-        console.log("Fetching baranggay-specific elections...");
-
-        // Find baranggay-specific elections
         const elections = await Election.find({
             city_id: cityObjectId,
             baranggay_id: baranggayObjectId,
         }).populate("candidates");
-
-        console.log("Found baranggay Elections:", elections);
 
         if (elections.length === 0) {
             return res
@@ -159,9 +149,68 @@ const getElectionsByLocation = async (req, res) => {
     }
 };
 
+// 🆕 Get current election results (added here instead of a new file)
+const getCurrentElectionResults = async (req, res) => {
+    const { election_id } = req.params;
+
+    try {
+        if (!mongoose.Types.ObjectId.isValid(election_id)) {
+            return res
+                .status(400)
+                .json({ error: "Invalid election ID format" });
+        }
+
+        const results = await Vote.aggregate([
+            {
+                $match: {
+                    election_id: new mongoose.Types.ObjectId(election_id),
+                },
+            },
+            {
+                $group: {
+                    _id: "$candidate_id",
+                    candidateName: { $first: "$candidate_name" },
+                    voteCount: { $sum: 1 },
+                },
+            },
+            {
+                $project: {
+                    candidate_id: "$_id",
+                    candidateName: 1,
+                    voteCount: 1,
+                    _id: 0,
+                },
+            },
+            {
+                $sort: { voteCount: -1 },
+            },
+        ]);
+
+        if (!results || results.length === 0) {
+            return res.status(200).json({
+                message: "No votes recorded for this election yet",
+                results: [],
+            });
+        }
+
+        res.status(200).json({
+            electionId: election_id,
+            totalVotes: results.reduce((sum, curr) => sum + curr.voteCount, 0),
+            results,
+        });
+    } catch (err) {
+        console.error("Error fetching election results:", err);
+        res.status(500).json({
+            error: "Error fetching results",
+            details: err.message,
+        });
+    }
+};
+
 module.exports = {
     createElection,
     getAllElections,
     getElectionById,
     getElectionsByLocation,
+    getCurrentElectionResults, // include it in exports
 };
