@@ -74,11 +74,12 @@ const castVote = async (req, res) => {
         );
 
         // Emit updated results with consistent format
-        emitResultsUpdate(election_id, {
-            electionId: election_id,
-            totalVotes,
-            results,
-        });
+        // emitResultsUpdate(election_id, {
+        //     electionId: election_id,
+        //     totalVotes,
+        //     results,
+        // });
+        emitResultsUpdate(election_id);
 
         res.status(201).json({ message: "Vote submitted successfully" });
     } catch (err) {
