@@ -145,74 +145,9 @@ const countVotes = async (req, res) => {
     }
 };
 
-// Get real-time election results
-const getCurrentElectionResults = async (req, res) => {
-    const { election_id } = req.params;
-
-    try {
-        // Validate election_id
-        if (!mongoose.Types.ObjectId.isValid(election_id)) {
-            return res
-                .status(400)
-                .json({ error: "Invalid election ID format" });
-        }
-
-        const results = await Vote.aggregate([
-            {
-                $match: {
-                    election_id: new mongoose.Types.ObjectId(election_id),
-                },
-            },
-            {
-                $group: {
-                    _id: "$candidate_id",
-                    candidateName: { $first: "$candidate_name" },
-                    voteCount: { $sum: 1 },
-                },
-            },
-            {
-                $project: {
-                    candidate_id: "$_id",
-                    candidateName: 1,
-                    voteCount: 1,
-                    _id: 0,
-                },
-            },
-            {
-                $sort: { voteCount: -1 }, // Sort by vote count in descending order
-            },
-        ]);
-
-        // If no results found
-        if (!results || results.length === 0) {
-            return res.status(200).json({
-                message: "No votes recorded for this election yet",
-                results: [],
-            });
-        }
-
-        res.status(200).json({
-            electionId: election_id,
-            totalVotes: results.reduce((sum, curr) => sum + curr.voteCount, 0),
-            // sum: accumulator (running total)
-            // curr: current item being processed
-            // curr.voteCount: vote count for current candidate
-            // 0: initial value for sum
-            results,
-        });
-    } catch (err) {
-        console.error("Error fetching election results:", err);
-        res.status(500).json({
-            error: "Error fetching results",
-            details: err.message,
-        });
-    }
-};
-
 module.exports = {
     castVote,
     checkVote,
     getVoteStatus,
     countVotes,
-    getCurrentElectionResults,
 };
