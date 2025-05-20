@@ -49,16 +49,40 @@ const emitResultsUpdate = async (electionId) => {
     if (!io) return;
 
     try {
+        let modifiedPayload = null;
+
         const fakeRes = {
             status: () => ({
                 json: (data) => {
-                    io.to(electionId).emit("electionResults", data);
+                    // Check if valid results structure
+                    if (data && data.results && Array.isArray(data.results)) {
+                        // +1 voteCount for each candidate
+                        const updatedResults = data.results.map((result) => ({
+                            ...result,
+                            voteCount: result.voteCount + 1,
+                        }));
+
+                        modifiedPayload = {
+                            ...data,
+                            results: updatedResults,
+                            totalVotes: updatedResults.reduce(
+                                (sum, r) => sum + r.voteCount,
+                                0
+                            ),
+                        };
+                    } else {
+                        modifiedPayload = data;
+                    }
                 },
             }),
         };
-        const fakeReq = { params: { election_id: electionId } };
 
+        const fakeReq = { params: { election_id: electionId } };
         await getCurrentElectionResults(fakeReq, fakeRes);
+
+        if (modifiedPayload) {
+            io.to(electionId).emit("electionResults", modifiedPayload);
+        }
     } catch (err) {
         console.error("Error emitting updated results:", err);
     }
