@@ -110,6 +110,7 @@ const getElectionsByLocation = async (req, res) => {
 
         const cityObjectId = new mongoose.Types.ObjectId(city_id);
 
+        // If barangay is null, return only city-wide elections
         if (!baranggay_id || baranggay_id === "null") {
             const elections = await Election.find({
                 city_id: cityObjectId,
@@ -131,15 +132,16 @@ const getElectionsByLocation = async (req, res) => {
 
         const baranggayObjectId = new mongoose.Types.ObjectId(baranggay_id);
 
+        // ✅ Modified: Fetch both barangay and city-wide elections
         const elections = await Election.find({
             city_id: cityObjectId,
-            baranggay_id: baranggayObjectId,
+            $or: [{ baranggay_id: baranggayObjectId }, { baranggay_id: null }],
         }).populate("candidates");
 
         if (elections.length === 0) {
             return res
                 .status(404)
-                .json({ message: "No baranggay elections found" });
+                .json({ message: "No elections found in this location" });
         }
 
         res.json(elections);
