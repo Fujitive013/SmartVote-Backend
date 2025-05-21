@@ -12,6 +12,4 @@ router.post("/", castVote);
 router.get("/check", checkVote);
 router.get("/status", getVoteStatus);
 router.get("/count/:candidate_id", countVotes);
-// router.get("/results/:election_id", getCurrentElectionResults);
-
 module.exports = router;

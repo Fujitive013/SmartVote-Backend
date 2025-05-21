@@ -7,6 +7,7 @@ const authRouter = require("./routes/auth");
 const electionsRouter = require("./routes/elections");
 const votesRouter = require("./routes/votes");
 const locationsRouter = require("./routes/locations");
+const adminRouter = require("./routes/admins");
 const corsConfig = require("./config/corsConfig");
 const { initializeSocket } = require("./libs/socket");
 const app = express();
@@ -55,3 +56,4 @@ app.use("/locations", locationsRouter);
 app.use(authenticateUser); // no need to specify sa each route
 app.use("/elections", electionsRouter);
 app.use("/votes", votesRouter);
+app.use("/admins", adminRouter); // Admin routes
